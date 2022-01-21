@@ -1,0 +1,45 @@
+float plot(vec2 st, float pct){
+  return  smoothstep( pct-0.02, pct, st.y) -
+          smoothstep( pct, pct+0.02, st.y);
+}
+
+void main() {
+    vec2 p = uvN();
+    vec4 diff;
+    float color; 
+    float frequency = 2.;
+    float gain = bands.x + bands.y;
+    float thickness = .005;
+    
+    float c1;
+    float c2;
+
+    vec2 st = gl_FragCoord.xy/resolution.xy;
+    
+    
+    if (bands.x > 0.7){
+        c1 = circle( -bands.y, -cos(bands.y), -bands.x, 0.025 );
+    }else{
+        c2 = circle( bands.x, sin(bands.x), bands.x, 0.025 );
+    }
+
+    color += c1 + c2;
+    
+    if (mouse.x == 0.){
+        diff = vec4( -st.x , -st.y , -st.x, -0.8);
+    }else if (mouse.x/resolution.x < .1){
+        diff = vec4( st.y , st.x*0.5 , st.x, 0.8);
+    }else if (mouse.x/resolution.x < .5){
+        diff = vec4( st.x*0.4, sqrt(st.x *.06), st.x/(st.y +.6), 0.5);
+        
+    }else{
+        vec2 v = vec2(sin(time)*0.5, cos(time)*0.5);
+        vec2 r = rotate(p, v, 0.2);
+        diff = vec4(r,p);
+    }
+    float line = plot(st, bands.x);
+
+    vec4 colorVec = vec4(color) + diff + -line;
+
+    gl_FragColor = colorVec;
+}
